@@ -110,6 +110,7 @@ print(cross_val_score(sgd_clf, X_train, y_train_5, cv=3, scoring="accuracy"))
 
 from sklearn.base import BaseEstimator
 
+# 5가 아닌것을 찾는 경우의 정확도
 class Never5Classifier(BaseEstimator):
     def fit(self, X, y=None):
         pass
@@ -118,6 +119,14 @@ class Never5Classifier(BaseEstimator):
 
 never_5_clf = Never5Classifier()
 print(cross_val_score(never_5_clf))
+
+# Data imbalance problem -> 영화 데이터 분석 할 때에 데이터 불균형 문제 있던 경우와 동일
+
+from sklearn.model_selection import cross_val_score
+
+
+
+
 
 
 plt.show()
