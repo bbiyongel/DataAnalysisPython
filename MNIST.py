@@ -23,6 +23,41 @@ def sort_by_target(mnist):
     mnist.data[60000:] = mnist.data[reorder_test + 60000]
     mnist.target[60000:] = mnist.target[reorder_test + 60000]
 
+# Where to save the figures
+PROJECT_ROOT_DIR = "."
+CHAPTER_ID = "classification"
+
+def save_fig(fig_id, tight_layout=True):
+    path = os.path.join(PROJECT_ROOT_DIR, "images", CHAPTER_ID, fig_id + ".png")
+    print("Saving figure", fig_id)
+    if tight_layout:
+        plt.tight_layout()
+    plt.savefig(path, format='png', dpi=300)
+
+# EXTRA
+def plot_digits(instances, images_per_row=10, **options):
+    size = 28
+    images_per_row = min(len(instances), images_per_row)
+    images = [instance.reshape(size,size) for instance in instances]
+    n_rows = (len(instances) - 1) // images_per_row + 1
+    row_images = []
+    n_empty = n_rows * images_per_row - len(instances)
+    images.append(np.zeros((size, size * n_empty)))
+    for row in range(n_rows):
+        rimages = images[row * images_per_row : (row + 1) * images_per_row]
+        row_images.append(np.concatenate(rimages, axis=1))
+    image = np.concatenate(row_images, axis=0)
+    plt.imshow(image, cmap = mpl.cm.binary, **options)
+    plt.axis("off")
+
+def plot_digit(data):
+    image = data.reshape(28, 28)
+    plt.imshow(image, cmap = mpl.cm.binary,
+               interpolation="nearest")
+    plt.axis("off")
+
+
+
 from sklearn.datasets import fetch_openml
 
 mnist = fetch_openml('mnist_784', version=1, cache=True)
@@ -37,6 +72,12 @@ print(mnist["data"], mnist["target"])
 X, y = mnist["data"], mnist["target"]
 print(X.shape)
 print(y.shape)
+
+# MNIST 모형
+plt.figure(figsize=(9,9))
+example_images = np.r_[X[:12000:600], X[13000:30600:600], X[30600:60000:590]]
+plot_digits(example_images, images_per_row=10)
+# save_fig("more_digits_plot")
 
 # 36001 번째 이미지 확인
 some_digit = X[36000]
@@ -224,6 +265,132 @@ print(roc_auc_score(y_train_5, y_scores_forest))
 sgd_clf.fit(X_train, y_train)
 print(sgd_clf.predict([some_digit]))
 
+some_digit_score = sgd_clf.decision_function([some_digit])
 
+# 가장 높은 점수로 예측함
+print(some_digit_score)
+
+# 가장 높은 점수를 가진 index 값
+print(np.argmax(some_digit_score))
+
+print(sgd_clf.classes_)
+print(sgd_clf.classes_[5])
+
+from sklearn.multiclass import OneVsOneClassifier
+
+# Ono vs One을 사용하도록 강제로 할당해줌 -> MNIST 문제에서는 45개의 class가 생김 ( SGD 분류기 )
+ovo_clf = OneVsOneClassifier(SGDClassifier(max_iter=5, random_state=42))
+ovo_clf.fit(X_train, y_train)
+
+print(ovo_clf.predict([some_digit]))
+print(len(ovo_clf.estimators_))
+
+# randomforest 분류기
+forest_clf.fit(X_train, y_train)
+print(forest_clf.predict([some_digit]))
+
+# Randomforest에서 각 클래스에 속할 확률 print
+print(forest_clf.predict_proba([some_digit]))
+
+# 분류기 평가 -> K fold Cross Val Score
+# -> 0.8 정도 나오는데, 각 범주별의 특성을 반영해서 찍었을때 확률이 0.9 이므로 더 높여야함
+print(cross_val_score(sgd_clf, X_train, y_train, cv=3, scoring="accuracy"))
+
+# 각 변수 Scaling -> 정확도 높여 줄 수 있음
+from sklearn.preprocessing import StandardScaler
+
+scaler = StandardScaler()
+X_train_scaled = scaler.fit_transform(X_train.astype(np.float64))
+print(cross_val_score(sgd_clf, X_train_scaled, y_train, cv=3, scoring="accuracy"))
+
+# 오차 행렬 검사
+y_train_pred = cross_val_predict(sgd_clf, X_train_scaled, y_train, cv=3)
+confusion_mat = confusion_matrix(y_train, y_train_pred)
+print(confusion_mat)
+
+# matplotlib 활용 ploting ( 값 높을수록 흰색 )
+# 확인결과 -> 5에 해당하는 class가 어둡다
+# 원인 1. class 5인 경우가 다른 숫자인 경우보다 적다
+# 원인 2. class 5를 잘 구분해내지 못한다.
+plt.matshow(confusion_mat, cmap=plt.cm.gray)
+
+# 에러 비율로 보자
+# class 8, 9에 해당하는 행이 밝다 -> 8, 9가 분류가 잘 안된다 ( 오류가 높다 )
+# class 1은 잘 된다 ( 어둡다 )
+# 에러 matrix는 대칭은아니다.
+# 개선방안 ?
+# 1. Training data 추가 수집
+# 2. 분류기에 도움 될만한 특성 추가 ( 숫자의 동심원 갯수라는 feature ( ex_ 8은 동심원이 2개 ) )
+# 3. 동심원 같은 패턴이 드러나도록 이미지 전처리 가능
+row_sums = confusion_mat.sum(axis=1, keepdims=True)
+norm_confusion_mat = confusion_mat / row_sums
+
+cl_a, cl_b = 3, 5
+# 3인데 3으로, 3인데 5로, 5인데 3으로, 5인데 5로 분류 한것들 순서
+X_aa = X_train[(y_train == cl_a) & (y_train_pred == cl_a)]
+X_ab = X_train[(y_train == cl_a) & (y_train_pred == cl_b)]
+X_ba = X_train[(y_train == cl_b) & (y_train_pred == cl_a)]
+X_bb = X_train[(y_train == cl_b) & (y_train_pred == cl_b)]
+
+np.fill_diagonal(norm_confusion_mat, 0)
+plt.matshow(norm_confusion_mat, cmap=plt.cm.gray)
+
+plt.figure(figsize=(8,8))
+
+# subplot -> 2 * 2 행렬의 n번째 ( -> 밑 순서 )
+# 플롯팅 해 보았을 때, 왜 분류를 잘못하는지 이해 불가능한것 꽤 많음
+# -> 3, 5 자체가 숫자가 비슷 하게 생기기도 했음
+# -> 이미지 전처리를 해 준다면 좀 더 정확할것
+plt.subplot(221); plot_digits(X_aa[:25], images_per_row=5)
+plt.subplot(222); plot_digits(X_ab[:25], images_per_row=5)
+plt.subplot(223); plot_digits(X_ba[:25], images_per_row=5)
+plt.subplot(224); plot_digits(X_bb[:25], images_per_row=5)
+# save_fig("error_analysis_digits_plot")
+
+# 다중 레이블 분류 ( ex_ 사진 하나에 사람 여러명 있을 때, 사람들 분류 모델 )
+from sklearn.neighbors import KNeighborsClassifier
+
+# 첫번째 조건 -> class 값이 7 이상인가
+# 두번째 조건 -> 홀수인가
+# 이 두가지를 한번에 분류하는 분류기 생성
+y_train_large = (y_train >= 7)
+y_train_odd = (y_train % 2 == 1)
+y_multilabel = np.c_[y_train_large, y_train_odd]
+
+knn_clf = KNeighborsClassifier()
+knn_clf.fit(X_train, y_multilabel)
+
+print(knn_clf.predict([some_digit]))
+
+# 모든 label에 대한 F1 평균 점수 return
+y_train_knn_pred = cross_val_predict(knn_clf, X_train, y_multilabel, cv=3, n_jobs=-1)
+print(f1_score(y_multilabel, y_train_knn_pred, average="macro"))
+
+# 위의 코드는 모든 label이 가중치가 같다고 가정하고 진행 한 것
+# support ( 지지도 )에 가중치를 주려면 average="weighted"로 주면 됨
+# 여러 가중치 방법들이 존재 ( 공식문서 참조 할 것 )
+
+# 다중 출력 분류 -> 다중 레이블 분류에서 한 레이블이 다중 클래스가 될 수 있도록 일반화
+
+# 노이즈 끼게 함 ( train, test 이미지에 )
+noise = np.random.randint(0, 100, (len(X_train), 784))
+X_train_mod = X_train + noise
+noise = np.random.randint(0, 100, (len(X_test), 784))
+X_test_mod = X_test + noise
+
+# target 변수가 pixel 값이니 이게 들어가는게 맞음
+y_train_mod = X_train
+y_test_mod = X_test
+
+# 아무인덱스나 주고
+some_index = 5500
+plt.subplot(121); plot_digit(X_test_mod[some_index])
+plt.subplot(122); plot_digit(y_test_mod[some_index])
+# save_fig("noisy_digit_example_plot")
+
+knn_clf.fit(X_train_mod, y_train_mod)
+clean_digit = knn_clf.predict([X_test_mod[some_index]])
+plot_digit(clean_digit)
+# save_fig("cleaned_digit_example_plot")
 
 plt.show()
