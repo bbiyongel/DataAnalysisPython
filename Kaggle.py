@@ -12,10 +12,14 @@ from sklearn.preprocessing import StandardScaler #Analysis
 from scipy import stats #Analysis
 import warnings
 warnings.filterwarnings('ignore')
+
 # import gc
 # import plotly.graph_objs as go
 # import plotly.offline as py
 # from plotly import tools
+cwd = os.getcwd()  # Get the current working directory (cwd)
+files = os.listdir(cwd)  # Get all the files in that directory
+print("Files in '%s': %s" % (cwd, files))
 
 # Set Data Path
 KAGGLE_DATA_PATH = os.path.join("datasets", "kaggle_competion")
@@ -56,27 +60,27 @@ train, test = load_kaggle_data()
 # else:
 #     print("포함되지 않은것이 있습니다.")
 
-# fig, ax = plt.subplots(figsize=(8, 6))
-# sns.boxplot(x="waterfront", y="price", data=train)
-# plt.title("Box Plot")
-# plt.show()
+fig, ax = plt.subplots(figsize=(8, 6))
+sns.boxplot(x="waterfront", y="price", data=train)
+plt.title("Box Plot")
+plt.show()
 
-# def discrete_data_box_plot(columname):
-#     fig, ax = plt.subplots(figsize=(8, 6))
-#     sns.boxplot(x=columname, y="price", data=train)
-#     plt.title("Box Plot")
-#     plt.show()
-#
-# def show_target_scatter_plot(colum_name):
-#     plt.scatter(train[colum_name], train['price'])
-#     plt.xlabel(colum_name)
-#     plt.ylabel('price')
-#     plt.title('Price VS '+ colum_name)
-#
-# attributes = [
-#     'sqft_living', 'sqft_lot', 'sqft_above', 'sqft_basement',
-#     'lat', 'long', 'sqft_living15', 'sqft_lot15'
-# ]
+def discrete_data_box_plot(columname):
+    fig, ax = plt.subplots(figsize=(8, 6))
+    sns.boxplot(x=columname, y="price", data=train)
+    plt.title("Box Plot")
+    plt.show()
+
+def show_target_scatter_plot(colum_name):
+    plt.scatter(train[colum_name], train['price'])
+    plt.xlabel(colum_name)
+    plt.ylabel('price')
+    plt.title('Price VS '+ colum_name)
+
+attributes = [
+    'sqft_living', 'sqft_lot', 'sqft_above', 'sqft_basement',
+    'lat', 'long', 'sqft_living15', 'sqft_lot15'
+]
 
 # for i in attributes:
 #     show_target_scatter_plot(i)
@@ -124,8 +128,6 @@ train, test = load_kaggle_data()
 # data = pd.concat([train.drop(['price'], axis=1), test])
 
 from pandas.plotting import scatter_matrix
-
-
 
 # scatter_matrix(train[attributes], figsize=(10, 15))
 

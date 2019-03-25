@@ -34,7 +34,7 @@ def fetch_housing_data(housing_url=HOUSING_URL, housing_path=HOUSING_PATH):
     housing_tgz.close()
 
 
-fetch_housing_data()
+# fetch_housing_data()
 
 def load_housing_data(housing_path=HOUSING_PATH):
     csv_path = os.path.join(housing_path, "housing.csv")
@@ -55,9 +55,10 @@ print(housing["ocean_proximity"].value_counts())
 # housing data에 대한 기초통계량
 print(housing.describe())
 
+
 # 히스토그램 show
-#housing.hist(bins=50, figsize=(20, 15))
-#plt.show()
+# housing.hist(bins=50, figsize=(20, 15))
+# plt.show()
 
 
 def split_train_test(data, test_ratio):
@@ -71,14 +72,17 @@ def split_train_test(data, test_ratio):
 train_set, test_set = split_train_test(housing, 0.2)
 print(len(train_set), "train +", len(test_set), "test")
 
+
 # ???
 def test_set_check(identifier, test_ratio):
     return crc32(np.int64(identifier)) & 0xffffffff < test_ratio * 2 ** 32
+
 
 def split_train_test_by_id(data, test_ratio, id_column):
     ids = data[id_column]
     in_test_set = ids.apply(lambda id_: test_set_check(id_, test_ratio))
     return data.loc[~in_test_set], data.loc[in_test_set]
+
 
 housing_with_id = housing.reset_index()
 train_set, test_set = split_train_test_by_id(housing_with_id, 0.2, "index")
@@ -86,32 +90,34 @@ train_set, test_set = split_train_test_by_id(housing_with_id, 0.2, "index")
 housing_with_id["id"] = housing["longitude"] * 1000 + housing["latitude"]
 train_set, test_set = split_train_test_by_id(housing_with_id, 0.2, "id")
 
-#random_state = seed number -> seed_num이 같으면 같은 난수가 생성된다.
-#https://code.i-harness.com/ko-kr/q/15973e3
+# random_state = seed number -> seed_num이 같으면 같은 난수가 생성된다.
+# https://code.i-harness.com/ko-kr/q/15973e3
 train_set, test_set = train_test_split(housing, test_size=0.2, random_state=42)
 
 housing["income_cat"] = np.ceil(housing["median_income"] / 1.5)
 housing["income_cat"].where(housing["income_cat"] < 5, 5.0, inplace=True)
 
-#housing["income_cat"].hist(bins=50, figsize=(20, 15))
-#plt.show()
+# housing["income_cat"].hist(bins=50, figsize=(20, 15))
+# plt.show()
 
 split = StratifiedShuffleSplit(n_splits=1, test_size=0.2, random_state=42)
 for train_index, test_index in split.split(housing, housing["income_cat"]):
     strat_train_set = housing.loc[train_index]
     strat_test_set = housing.loc[test_index]
 
+print("여기")
 print(housing["income_cat"].value_counts() / len(housing))
 
 for set_ in (strat_train_set, strat_test_set):
-    set_.drop("income_cat", axis = 1, inplace=True)
+    set_.drop("income_cat", axis=1, inplace=True)
 
 housing = strat_train_set.copy()
 
 # housing.plot(kind = "scatter", x = "longitude", y = "latitude")
 # housing.plot(kind = "scatter", x = "longitude", y = "latitude", alpha = 0.1)
 
-housing.plot(kind="scatter", x="longitude", y= "latitude", alpha = 0.4, s= housing["population"]/100, label = " population", figsize = (10,7), c="median_house_value", cmap = plt.get_cmap("jet"), colorbar = True, sharex = False)
+housing.plot(kind="scatter", x="longitude", y="latitude", alpha=0.4, s=housing["population"] / 100, label=" population",
+             figsize=(10, 7), c="median_house_value", cmap=plt.get_cmap("jet"), colorbar=True, sharex=False)
 
 plt.legend()
 # plt.show()
@@ -120,7 +126,7 @@ corr_matrix = housing.corr()
 print(corr_matrix)
 
 attributes = ["median_house_value", "median_income", "total_rooms", "housing_median_age"]
-scatter_matrix(housing[attributes], figsize=(12,8))
+scatter_matrix(housing[attributes], figsize=(12, 8))
 
 housing.plot(kind="scatter", x="median_income", y="median_house_value", alpha=0.1)
 
@@ -134,15 +140,15 @@ print(corr_matrix["median_house_value"].sort_values(ascending=False))
 housing = strat_train_set.drop("median_house_value", axis=1)
 housing_labels = strat_train_set["median_house_value"].copy()
 
-housing.dropna(subset=["total_bedrooms"]) # 해당 구역 제거 ( N/A 인 부분 )
-housing.drop("total_bedrooms", axis=1) # 전체 특성 제거
-median = housing["total_bedrooms"].median() #Training 셋의 median값 으로 N/A값 채움, Test 셋평가할때도 해당 값 사용
+housing.dropna(subset=["total_bedrooms"])  # 해당 구역 제거 ( N/A 인 부분 )
+housing.drop("total_bedrooms", axis=1)  # 전체 특성 제거
+median = housing["total_bedrooms"].median()  # Training 셋의 median값 으로 N/A값 채움, Test 셋평가할때도 해당 값 사용
 housing["total_bedrooms"].fillna(median, inplace=True)
 
-imputer = SimpleImputer(strategy= "median")
+imputer = SimpleImputer(strategy="median")
 
-#median 값은 수치형 데이터에만 적용되기 때문에 범주형 데이터 삭제
-housing_num = housing.drop("ocean_proximity", axis = 1 )
+# median 값은 수치형 데이터에만 적용되기 때문에 범주형 데이터 삭제
+housing_num = housing.drop("ocean_proximity", axis=1)
 
 imputer.fit(housing_num)
 
@@ -166,7 +172,7 @@ print(housing["ocean_proximity"].head(10))
 from sklearn.preprocessing import OneHotEncoder
 
 encoder = OneHotEncoder(categories='auto')
-housing_cat_1hot = encoder.fit_transform(housing_cat_encoded.reshape(-1,1))
+housing_cat_1hot = encoder.fit_transform(housing_cat_encoded.reshape(-1, 1))
 print(housing_cat_1hot)
 print(housing_cat_1hot.toarray())
 
@@ -175,7 +181,7 @@ print(housing_cat_1hot.toarray())
 # cat_encoder = CategoricalEncoder()
 
 cat_encoder = OneHotEncoder(sparse=False)
-housing_cat_reshaped = housing_cat.values.reshape(-1,1)
+housing_cat_reshaped = housing_cat.values.reshape(-1, 1)
 housing_cat_1hot = cat_encoder.fit_transform(housing_cat_reshaped)
 print("asdfasdf")
 print(housing_cat_1hot)
@@ -187,12 +193,15 @@ from sklearn.base import BaseEstimator, TransformerMixin
 
 rooms_ix, bedrooms_ix, population_ix, household_ix = 3, 4, 5, 6
 
+
 class CombinedAttributesAdder(BaseEstimator, TransformerMixin):
-    def __init__(self, add_bedrooms_per_room = True):
+    def __init__(self, add_bedrooms_per_room=True):
         self.add_bedrooms_per_room = add_bedrooms_per_room
+
     def fit(self, X, y=None):
         return self
-    def transform(self, X, y = None):
+
+    def transform(self, X, y=None):
         rooms_per_household = X[:, rooms_ix] / X[:, household_ix]
         population_per_household = X[:, population_ix] / X[:, household_ix]
         if self.add_bedrooms_per_room:
@@ -200,6 +209,7 @@ class CombinedAttributesAdder(BaseEstimator, TransformerMixin):
             return np.c_[X, rooms_per_household, population_per_household, bedrooms_per_room]
         else:
             return np.c_[X, rooms_per_household, population_per_household]
+
 
 attr_adder = CombinedAttributesAdder(add_bedrooms_per_room=False)
 housing_extra_attribs = attr_adder.transform(housing.values)
@@ -220,13 +230,17 @@ print(housing_num_tr)
 
 from sklearn.base import BaseEstimator, TransformerMixin
 
+
 class DataFrameSelector(BaseEstimator, TransformerMixin):
     def __init__(self, attribute_names):
         self.attribute_names = attribute_names
+
     def fit(self, X, y=None):
         return self
+
     def transform(self, X):
         return X[self.attribute_names].values
+
 
 num_attribs = list(housing_num)
 cat_attribs = ["ocean_proximity"]
@@ -245,7 +259,7 @@ cat_pipeline = Pipeline([
 
 from sklearn.pipeline import FeatureUnion
 
-full_pipeline = FeatureUnion(transformer_list= [
+full_pipeline = FeatureUnion(transformer_list=[
     ("num_pipeline", num_pipeline),
     ("cat_pipeline", cat_pipeline),
 ])
@@ -291,10 +305,12 @@ tree_rmse_scores = np.sqrt(-scores)
 print("Cross-Validation")
 print(tree_rmse_scores)
 
+
 def display_scores(scores):
     print("Scores :", scores)
     print("Mean :", scores.mean())
     print("Standard Deviation :", scores.std())
+
 
 display_scores(tree_rmse_scores)
 
@@ -321,13 +337,13 @@ display_scores(for_rmse_scores)
 from sklearn.model_selection import GridSearchCV
 
 param_grid = [
-    {'n_estimators' : [3, 10, 30], 'max_features': [2, 4, 6, 8]},
-    {'bootstrap' : [False], 'n_estimators' : [3, 10], 'max_features': [2, 3, 4]},
+    {'n_estimators': [3, 10, 30], 'max_features': [2, 4, 6, 8]},
+    {'bootstrap': [False], 'n_estimators': [3, 10], 'max_features': [2, 3, 4]},
 ]
 
 forest_reg = RandomForestRegressor(n_estimators=10)
 
-grid_search = GridSearchCV(forest_reg, param_grid, cv = 5, scoring='neg_mean_squared_error', return_train_score=True)
+grid_search = GridSearchCV(forest_reg, param_grid, cv=5, scoring='neg_mean_squared_error', return_train_score=True)
 
 grid_search.fit(housing_prepared, housing_labels)
 
@@ -346,7 +362,7 @@ extra_attribs = ["rooms_per_hhold", "pop_per_hhold", "bedrooms_per_room"]
 cat_encoder = cat_pipeline.named_steps["cat_encoder"]
 cat_one_hot_attribs = list(cat_encoder.categories_[0])
 attributes = num_attribs + extra_attribs + cat_one_hot_attribs
-print(sorted(zip(feature_importances, attributes), reverse= True))
+print(sorted(zip(feature_importances, attributes), reverse=True))
 
 final_model = grid_search.best_estimator_
 
@@ -390,11 +406,11 @@ n_iter_search = 20
 
 random_forest_reg = RandomForestRegressor(n_estimators=20)
 
-param_dist= {
-    "max_depth" : [3, None],
-    "max_features" : randint(1,11),
-    "min_samples_split" : randint(2,11),
-    "bootstrap" : [True, False]
+param_dist = {
+    "max_depth": [3, None],
+    "max_features": randint(1, 11),
+    "min_samples_split": randint(2, 11),
+    "bootstrap": [True, False]
     # "criterion" : ["gini", "entropy"]
 }
 
@@ -412,4 +428,3 @@ feature_importances = random_search.best_estimator_.feature_importances_
 print(feature_importances)
 
 # plt.show()
-
