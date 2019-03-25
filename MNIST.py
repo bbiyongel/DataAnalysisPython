@@ -56,8 +56,6 @@ def plot_digit(data):
                interpolation="nearest")
     plt.axis("off")
 
-
-
 from sklearn.datasets import fetch_openml
 
 mnist = fetch_openml('mnist_784', version=1, cache=True)
