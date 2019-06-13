@@ -1,15 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="22d76782-c5e3-4db6-ae6e-ed040fbb103d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/BaseLine.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/BaseLine_kernel.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Housing_price.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/Kaggle.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/MNIST.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/housing/housing.csv" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/datasets/housing/housing.tgz" beforeDir="false" />
-    </list>
+    <list default="true" id="22d76782-c5e3-4db6-ae6e-ed040fbb103d" name="Default Changelist" comment="" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -30,15 +22,22 @@
           </provider>
         </entry>
       </file>
-      <file pinned="false" current-in-tab="true">
+      <file pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/HousePricePrediction/BaseLine_kernel.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="133">
+            <state relative-caret-position="-209">
               <caret line="169" column="17" selection-start-line="169" selection-start-column="17" selection-end-line="169" selection-end-column="17" />
               <folding>
                 <element signature="e#1#10#0" expanded="true" />
               </folding>
             </state>
+          </provider>
+        </entry>
+      </file>
+      <file pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/HousePricePrediction/gmap.html">
+          <provider selected="true" editor-type-id="text-editor">
+            <state relative-caret-position="-1767" />
           </provider>
         </entry>
       </file>
@@ -361,12 +360,12 @@
     <frame x="-7" y="-7" width="1550" height="878" extended-state="6" />
     <editor active="true" />
     <layout>
-      <window_info content_ui="combo" id="Project" order="0" visible="true" weight="0.18440185" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.18440185" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Favorites" order="2" side_tool="true" />
       <window_info anchor="bottom" id="Message" order="0" />
       <window_info anchor="bottom" id="Find" order="1" />
-      <window_info active="true" anchor="bottom" id="Run" order="2" visible="true" weight="0.36107382" />
+      <window_info anchor="bottom" id="Run" order="2" visible="true" weight="0.36107382" />
       <window_info anchor="bottom" id="Debug" order="3" weight="0.4885906" />
       <window_info anchor="bottom" id="Cvs" order="4" weight="0.25" />
       <window_info anchor="bottom" id="Inspection" order="5" weight="0.4" />
@@ -630,12 +629,17 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/HousePricePrediction/BaseLine_kernel.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="133">
+        <state relative-caret-position="-209">
           <caret line="169" column="17" selection-start-line="169" selection-start-column="17" selection-end-line="169" selection-end-column="17" />
           <folding>
             <element signature="e#1#10#0" expanded="true" />
           </folding>
         </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/HousePricePrediction/gmap.html">
+      <provider selected="true" editor-type-id="text-editor">
+        <state relative-caret-position="-1767" />
       </provider>
     </entry>
   </component>
