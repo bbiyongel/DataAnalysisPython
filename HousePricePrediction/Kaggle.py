@@ -22,7 +22,7 @@ files = os.listdir(cwd)  # Get all the files in that directory
 print("Files in '%s': %s" % (cwd, files))
 
 # Set Data Path
-KAGGLE_DATA_PATH = os.path.join("datasets", "kaggle_competion")
+KAGGLE_DATA_PATH = os.path.join("HousePricePrediction/datasets")
 
 def load_kaggle_data(kaggle_data_path=KAGGLE_DATA_PATH):
     train_csv_path = os.path.join(kaggle_data_path, "train.csv")
